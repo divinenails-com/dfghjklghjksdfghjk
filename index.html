@@ -1,0 +1,929 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+<title>CISAS Executive Portal | University of Limpopo</title>
+<style>
+/* Palette taken from the Class Register dashboard (cream + amber, with a dark theme) */
+:root{
+  --bg:#f5f1e6;
+  --surface:#fdfaf1;
+  --raised:#efe9d9;
+  --border:#e2d9c2;
+  --text:#221d10;
+  --text-secondary:#5f553c;
+  --text-muted:#7a6e53;
+  --accent:#b96f0a;
+  --accent-hover:#9a5a05;
+  --accent-ink:#fff8ec;
+  --accent-text:#8a5106;
+  --accent-light:#f5e8cd;
+  --pos:#5b7d3a;
+  --danger:#c0452f;
+  --danger-hover:#a53a26;
+  --danger-ink:#ffffff;
+  --danger-light:#f8e3dc;
+  --radius:8px;
+  --overlay:rgba(34,29,16,.55);
+  --header-h:64px;
+}
+[data-theme=dark]{
+  --bg:#191510;
+  --surface:#211c14;
+  --raised:#2a241a;
+  --border:#36301f;
+  --text:#efe7d2;
+  --text-secondary:#c3b793;
+  --text-muted:#a89a78;
+  --accent:#e5a23a;
+  --accent-hover:#f0b455;
+  --accent-ink:#241a04;
+  --accent-text:#e5a23a;
+  --accent-light:#33260e;
+  --pos:#9ab86a;
+  --danger:#e0765f;
+  --danger-hover:#ea8a74;
+  --danger-ink:#241008;
+  --danger-light:#3a1f18;
+  --overlay:rgba(0,0,0,.65);
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%}
+body{
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  background:var(--bg);color:var(--text);line-height:1.6;min-height:100vh;
+  overflow-wrap:anywhere;
+}
+body.locked{overflow:hidden}
+button,input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+/* Header */
+header{
+  background:var(--surface);border-bottom:1px solid var(--border);
+  position:sticky;top:0;z-index:100;
+  padding-top:env(safe-area-inset-top,0px);
+}
+.header-content{
+  display:flex;align-items:center;gap:12px;height:var(--header-h);
+  max-width:1400px;margin:0 auto;
+  padding:0 max(24px,env(safe-area-inset-right,0px)) 0 max(24px,env(safe-area-inset-left,0px));
+}
+.brand{flex:1;min-width:0}
+.university-name{font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em;line-height:1.3}
+.logo{font-size:20px;font-weight:700;color:var(--text);text-decoration:none;letter-spacing:-.02em;white-space:nowrap}
+.logo span{color:var(--accent)}
+.icon-btn{
+  display:inline-flex;align-items:center;justify-content:center;min-height:40px;min-width:40px;padding:0 14px;
+  background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);font-size:13px;font-weight:500;
+  color:var(--text-secondary);cursor:pointer;
+}
+.icon-btn:hover{color:var(--text);border-color:var(--accent)}
+.menu-btn{display:none;font-size:20px;padding:0}
+.user-badge{
+  display:flex;align-items:center;gap:8px;padding:6px 14px 6px 6px;background:var(--accent-light);
+  border-radius:99px;font-size:14px;font-weight:500;color:var(--accent-text);white-space:nowrap;
+}
+.user-avatar{
+  width:30px;height:30px;background:var(--accent);color:var(--accent-ink);border-radius:50%;
+  display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;
+}
+
+/* Layout */
+.main-layout{
+  display:grid;grid-template-columns:260px minmax(0,1fr);
+  max-width:1400px;margin:0 auto;
+  min-height:calc(100vh - var(--header-h));
+}
+.sidebar{
+  background:var(--surface);border-right:1px solid var(--border);padding:24px 0;
+  position:sticky;top:calc(var(--header-h) + env(safe-area-inset-top,0px));
+  align-self:start;height:calc(100vh - var(--header-h));overflow-y:auto;
+}
+.sidebar-nav{display:flex;flex-direction:column;gap:4px}
+.sidebar-nav a{
+  display:flex;align-items:center;gap:12px;padding:12px 24px;color:var(--text-secondary);
+  text-decoration:none;font-size:14px;font-weight:500;border-left:3px solid transparent;
+  transition:background .2s,color .2s;
+}
+.sidebar-nav a:hover{background:var(--bg);color:var(--text)}
+.sidebar-nav a.active{background:var(--accent-light);color:var(--accent-text);border-left-color:var(--accent)}
+.nav-icon{
+  width:24px;height:24px;display:flex;align-items:center;justify-content:center;
+  font-size:12px;font-weight:700;background:var(--raised);border-radius:6px;flex:none;
+}
+.sidebar-nav a.active .nav-icon{background:var(--accent);color:var(--accent-ink)}
+.scrim{display:none}
+
+.main-content{padding:32px;min-width:0}
+.page-header{display:flex;justify-content:space-between;align-items:center;gap:16px;margin-bottom:32px}
+.page-title{font-size:24px;font-weight:700;margin-bottom:4px;letter-spacing:-.02em}
+.page-subtitle{font-size:14px;color:var(--text-secondary);max-width:62ch}
+
+/* Buttons */
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:40px;padding:9px 20px;
+  border-radius:var(--radius);font-size:14px;font-weight:600;text-decoration:none;
+  border:1px solid transparent;cursor:pointer;transition:background .2s,border-color .2s;
+}
+.btn-primary{background:var(--accent);color:var(--accent-ink)}
+.btn-primary:hover{background:var(--accent-hover)}
+.btn-secondary{background:var(--surface);color:var(--text);border-color:var(--border)}
+.btn-secondary:hover{background:var(--raised)}
+.btn-danger{background:var(--danger);color:var(--danger-ink)}
+.btn-danger:hover{background:var(--danger-hover)}
+.btn-sm{min-height:36px;padding:6px 14px;font-size:13px}
+
+/* Stats */
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-bottom:32px}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px}
+.stat-label{font-size:13px;color:var(--text-secondary);margin-bottom:8px}
+.stat-value{font-size:28px;font-weight:700;line-height:1.2}
+.stat-value.sm{font-size:18px;padding:5px 0}
+.stat-meta{font-size:12px;color:var(--text-muted);margin-top:4px}
+
+/* Panels */
+.content-grid{display:grid;grid-template-columns:minmax(0,1fr) 380px;gap:24px;align-items:start}
+.side-stack{display:flex;flex-direction:column;gap:24px;min-width:0}
+.panel{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);min-width:0}
+.panel-header{
+  padding:16px 20px;border-bottom:1px solid var(--border);
+  display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;
+}
+.panel-title{font-size:16px;font-weight:600}
+.panel-body{padding:20px}
+.filters{display:flex;gap:8px;flex-wrap:wrap}
+.filters .form-select{width:auto;min-width:130px;padding:7px 12px}
+
+/* Forms */
+.form-group{margin-bottom:16px}
+.form-label{display:block;font-size:13px;font-weight:500;margin-bottom:6px}
+.form-label span{color:var(--danger)}
+.form-input,.form-select,.form-textarea{
+  width:100%;min-height:42px;padding:10px 12px;border:1px solid var(--border);border-radius:var(--radius);
+  font-size:14px;background:var(--bg);transition:border-color .2s;
+}
+.form-input:focus,.form-select:focus,.form-textarea:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-light)}
+.form-textarea{resize:vertical;min-height:90px}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.form-row>*{min-width:0}
+.form-hint{font-size:12px;color:var(--text-muted);margin-top:4px}
+
+/* Class list */
+.classes-list{display:flex;flex-direction:column;gap:12px}
+.class-item{
+  background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:16px;
+  display:flex;justify-content:space-between;align-items:flex-start;gap:16px;
+}
+.class-item.is-cancelled{opacity:.7}
+.class-info{flex:1;min-width:0}
+.class-top{display:flex;align-items:center;flex-wrap:wrap;gap:8px 12px;margin-bottom:8px}
+.class-type{font-size:12px;color:var(--text-muted)}
+.class-title{font-size:15px;font-weight:600;margin-bottom:4px}
+.class-meta{display:flex;flex-wrap:wrap;gap:4px 16px;font-size:13px;color:var(--text-secondary)}
+.class-meta+.class-meta{margin-top:6px}
+.class-desc{margin-top:8px;font-size:13px;color:var(--text-secondary)}
+.class-actions{display:flex;gap:8px;flex:none}
+.class-status{display:inline-block;padding:3px 10px;border-radius:4px;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.05em}
+.status-scheduled{background:var(--accent-light);color:var(--accent-text)}
+.status-completed{background:var(--raised);color:var(--text-muted)}
+.status-cancelled{background:var(--danger-light);color:var(--danger)}
+
+.empty-state{text-align:center;padding:48px 24px;background:var(--bg);border:1px dashed var(--border);border-radius:var(--radius)}
+.empty-state h3{font-size:16px;font-weight:600;margin-bottom:8px}
+.empty-state p{color:var(--text-secondary);font-size:14px;max-width:46ch;margin:0 auto}
+
+/* Quick actions & timeline */
+.quick-actions{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.quick-action-btn{
+  padding:16px 8px;background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);
+  text-align:center;cursor:pointer;transition:background .2s,border-color .2s;
+}
+.quick-action-btn:hover{background:var(--accent-light);border-color:var(--accent)}
+.quick-action-icon{font-size:22px;font-weight:600;color:var(--accent-text);margin-bottom:4px;line-height:1.2}
+.quick-action-label{font-size:13px;font-weight:500}
+.timeline{display:flex;flex-direction:column;gap:12px}
+.phase{padding:12px;background:var(--bg);border-radius:var(--radius);border-left:3px solid var(--border)}
+.phase.current{background:var(--accent-light);border-left-color:var(--accent)}
+.phase-tag{font-size:12px;font-weight:600;color:var(--text-muted);margin-bottom:4px;text-transform:uppercase;letter-spacing:.04em}
+.phase.current .phase-tag{color:var(--accent-text)}
+.phase-name{font-size:14px;font-weight:600}
+.phase-date{font-size:12px;color:var(--text-secondary)}
+
+/* Modal */
+.modal-overlay{
+  display:none;position:fixed;inset:0;background:var(--overlay);z-index:200;
+  align-items:center;justify-content:center;padding:24px;
+}
+.modal-overlay.active{display:flex}
+.modal{
+  background:var(--surface);border-radius:var(--radius);width:100%;max-width:600px;
+  max-height:calc(100vh - 48px);max-height:calc(100dvh - 48px);display:flex;flex-direction:column;overflow:hidden;
+}
+.modal-header{padding:18px 24px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;flex:none}
+.modal-title{font-size:18px;font-weight:600}
+.modal-close{background:none;border:none;font-size:28px;line-height:1;color:var(--text-muted);cursor:pointer;min-width:40px;min-height:40px}
+.modal-close:hover{color:var(--text)}
+.modal-body{padding:24px;overflow-y:auto;flex:1;-webkit-overflow-scrolling:touch}
+.modal-footer{
+  padding:16px 24px calc(16px + env(safe-area-inset-bottom,0px));border-top:1px solid var(--border);
+  display:flex;justify-content:flex-end;gap:12px;flex:none;background:var(--surface);
+}
+
+.toast{
+  position:fixed;right:24px;bottom:calc(24px + env(safe-area-inset-bottom,0px));background:var(--accent);color:var(--accent-ink);
+  padding:14px 22px;border-radius:var(--radius);box-shadow:0 4px 14px rgba(0,0,0,.2);z-index:300;font-size:14px;font-weight:600;
+  transition:opacity .3s;
+}
+
+/* ---------- Responsive ---------- */
+@media(max-width:1100px){
+  .content-grid{grid-template-columns:minmax(0,1fr)}
+  .side-stack{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));align-items:start}
+}
+@media(max-width:900px){
+  .main-layout{grid-template-columns:minmax(0,1fr)}
+  .menu-btn{display:inline-flex}
+  .sidebar{
+    position:fixed;top:0;bottom:0;left:0;width:min(300px,84vw);height:auto;z-index:150;
+    padding-top:calc(24px + env(safe-area-inset-top,0px));
+    transform:translateX(-100%);visibility:hidden;
+    transition:transform .25s ease,visibility 0s linear .25s;
+  }
+  .sidebar.open{transform:none;visibility:visible;transition:transform .25s ease}
+  .scrim{display:block;position:fixed;inset:0;background:var(--overlay);z-index:140;opacity:0;pointer-events:none;transition:opacity .25s}
+  .scrim.show{opacity:1;pointer-events:auto}
+  .main-content{padding:24px max(20px,env(safe-area-inset-right,0px)) 32px max(20px,env(safe-area-inset-left,0px))}
+}
+@media(max-width:640px){
+  :root{--header-h:60px}
+  .header-content{padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));gap:8px}
+  .logo{font-size:17px}
+  .user-badge span{display:none}
+  .user-badge{padding:3px}
+  .theme-label{display:none}
+  .main-content{padding-top:20px}
+  .page-header{flex-direction:column;align-items:stretch;margin-bottom:24px}
+  .page-header .btn{width:100%}
+  .stats-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-bottom:24px}
+  .stat-card{padding:16px}
+  .stat-value{font-size:24px}
+  .panel-header,.panel-body{padding:16px}
+  .filters{width:100%}
+  .filters .form-select{flex:1;min-width:0}
+  .class-item{flex-direction:column;gap:14px}
+  .class-actions{width:100%}
+  .class-actions .btn{flex:1}
+  .form-row{grid-template-columns:1fr;gap:0}
+  .form-input,.form-select,.form-textarea{font-size:16px} /* stops iOS zoom on focus */
+  .modal-overlay{padding:0;align-items:flex-end}
+  .modal{max-width:none;max-height:94vh;max-height:94dvh;border-radius:16px 16px 0 0}
+  .modal-header,.modal-body{padding-left:18px;padding-right:18px}
+  .modal-footer{padding-left:18px;padding-right:18px}
+  .modal-footer .btn{flex:1}
+  .toast{left:16px;right:16px;text-align:center}
+}
+@media(max-width:340px){
+  .stats-grid{grid-template-columns:minmax(0,1fr)}
+  .university-name{display:none}
+}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+
+/* ---- Professional polish + new views ---- */
+body{font-feature-settings:"tnum" 1,"cv11" 1;-webkit-font-smoothing:antialiased}
+.stat-card,.panel{box-shadow:0 1px 2px rgba(34,29,16,.05)}
+[data-theme=dark] .stat-card,[data-theme=dark] .panel{box-shadow:none}
+.stat-value{letter-spacing:-.02em}
+.panel-title{font-size:15px;font-weight:650}
+.sidebar{padding-top:16px}
+.nav-icon{background:none;width:22px;height:22px}
+.sidebar-nav a.active .nav-icon{background:none;color:var(--accent-text)}
+.sidebar-nav a{border-radius:0 8px 8px 0;margin-right:12px;padding:10px 16px 10px 21px}
+.logo{font-size:19px}
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.muted{color:var(--text-secondary);font-size:14px}
+.right{text-align:right}
+.stack{display:flex;flex-direction:column;gap:24px;min-width:0}
+.btn-stack{display:flex;flex-direction:column;gap:10px}
+.toolbar{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:16px}
+.toolbar .form-input{flex:1 1 240px;min-width:0}
+.toolbar .form-select{flex:0 1 170px;width:auto;min-width:0}
+.result-count{font-size:12px;color:var(--text-muted);margin-bottom:12px}
+.form-input.invalid,.form-select.invalid,.form-textarea.invalid{border-color:var(--danger);box-shadow:0 0 0 3px var(--danger-light)}
+.form-error{background:var(--danger-light);color:var(--danger);border:1px solid var(--danger);border-radius:var(--radius);padding:10px 14px;font-size:13px;font-weight:500;margin:0 0 16px}
+.form-error[hidden]{display:none}
+.form-error ul{margin-left:18px}
+#formError{margin:24px 24px 0}
+.inline-form{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr)) auto;gap:12px;align-items:end}
+.inline-form .btn{min-height:42px}
+.table-wrap{position:relative;overflow-x:auto;border:1px solid var(--border);border-radius:var(--radius)}
+table{width:100%;border-collapse:collapse;font-size:14px;min-width:560px}
+th{text-align:left;font-size:12px;font-weight:600;color:var(--text-muted);padding:10px 14px;background:var(--bg);border-bottom:1px solid var(--border);white-space:nowrap}
+td{padding:11px 14px;border-bottom:1px solid var(--border);vertical-align:middle}
+tbody tr:last-child td{border-bottom:0}
+tbody tr:hover{background:var(--bg)}
+.progress{height:8px;background:var(--raised);border-radius:99px;overflow:hidden}
+.progress i{display:block;height:100%;background:var(--accent);border-radius:99px;transition:width .3s}
+.progress-row{display:flex;justify-content:space-between;font-size:13px;color:var(--text-secondary);margin-bottom:8px}
+.bar-row{display:grid;grid-template-columns:minmax(110px,190px) 1fr 32px;gap:12px;align-items:center;margin-bottom:14px;font-size:13px}
+.bar-row b{text-align:right}
+.note{padding:16px 0;border-bottom:1px solid var(--border)}
+.note:first-child{padding-top:0}.note:last-child{border-bottom:0;padding-bottom:0}
+.note-head{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:6px}
+.note-head h3{font-size:15px}
+.note p{font-size:14px;color:var(--text-secondary);margin-bottom:6px}
+.phase-card.is-current{border-color:var(--accent)}
+.phase-row{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap}
+.seg{display:inline-flex;background:var(--bg);border:1px solid var(--border);border-radius:99px;padding:3px}
+.seg button{border:0;background:none;border-radius:99px;padding:6px 18px;font-size:13px;font-weight:500;color:var(--text-secondary);cursor:pointer}
+.seg button.on{background:var(--accent);color:var(--accent-ink)}
+.link{color:var(--accent-text);font-weight:600;text-decoration:none}
+.link:hover{text-decoration:underline}
+.quick-action-btn{font:inherit;color:inherit}
+.quick-action-icon{display:flex;justify-content:center}
+.class-title{font-size:15px}
+.modal-sm{max-width:420px}
+.modal-sm .modal-body{padding:24px}
+.empty-state .btn{margin-top:16px}
+.class-actions{flex-wrap:wrap;justify-content:flex-end}
+@media(max-width:640px){
+  .inline-form{grid-template-columns:1fr}
+  .toolbar .form-select{flex:1 1 calc(50% - 5px)}
+  .toolbar .btn{flex:1 1 100%}
+  #formError{margin:18px 18px 0}
+  .bar-row{grid-template-columns:1fr 32px;gap:6px 12px}.bar-row .progress{grid-column:1/-1;grid-row:2}
+  .note-head{align-items:flex-start}
+}
+@media print{
+  header,.sidebar,.scrim,.page-header .btn,.btn,.toast{display:none!important}
+  .main-layout{display:block}body{background:#fff;color:#000}
+  .panel,.stat-card{box-shadow:none;break-inside:avoid}
+}
+.icon-btn{gap:8px;white-space:nowrap}
+@media(max-width:420px){.logo{font-size:16px}.header-content{gap:6px}}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-content">
+    <button class="icon-btn menu-btn" id="menuBtn" aria-label="Open menu" aria-controls="sidebar" aria-expanded="false">&#9776;</button>
+    <div class="brand">
+      <div class="university-name">University of Limpopo</div>
+      <a href="#" class="logo">CIS<span>AS</span> Executive Portal</a>
+    </div>
+    <button class="icon-btn" id="themeBtn" aria-label="Switch theme"><span class="theme-label" id="themeLabel">Dark mode</span><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 3a9 9 0 0 0 0 18z" fill="currentColor"/></svg></button>
+    <div class="user-badge">
+      <div class="user-avatar">EX</div>
+      <span>Executive Member</span>
+    </div>
+  </div>
+</header>
+
+<div class="scrim" id="scrim"></div>
+
+<div class="main-layout">
+  <aside class="sidebar" id="sidebar" aria-label="Main navigation">
+    <nav class="sidebar-nav" id="nav"></nav>
+  </aside>
+
+  <main class="main-content" id="main" tabindex="-1"></main>
+</div>
+
+<!-- Schedule Class Modal -->
+<div class="modal-overlay" id="scheduleModal">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <div class="modal-header">
+      <h2 class="modal-title" id="modalTitle">Schedule new class</h2>
+      <button class="modal-close" onclick="closeScheduleModal()" aria-label="Close">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-error" id="formError" role="alert" hidden></div>
+      <form id="scheduleForm" novalidate>
+        <div class="form-group">
+          <label class="form-label" for="classTitle">Class Title <span>*</span></label>
+          <input type="text" class="form-input" id="classTitle" placeholder="e.g., Information Studies Theoretical Foundations" required>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label" for="moduleCode">Module Code <span>*</span></label>
+            <input type="text" class="form-input" id="moduleCode" placeholder="e.g., INF301" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="facilitator">Facilitator <span>*</span></label>
+            <input type="text" class="form-input" id="facilitator" placeholder="e.g., Dr. Smith" required>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label" for="classDate">Date <span>*</span></label>
+            <input type="date" class="form-input" id="classDate" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="classTime">Time <span>*</span></label>
+            <input type="time" class="form-input" id="classTime" required>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label" for="duration">Duration</label>
+            <select class="form-select" id="duration">
+              <option value="1">1 hour</option>
+              <option value="1.5">1.5 hours</option>
+              <option value="2" selected>2 hours</option>
+              <option value="2.5">2.5 hours</option>
+              <option value="3">3 hours</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="platform">Platform <span>*</span></label>
+            <select class="form-select" id="platform" required>
+              <option value="">Select platform</option>
+              <option value="Microsoft Teams">Microsoft Teams</option>
+              <option value="Zoom">Zoom</option>
+              <option value="Google Meet">Google Meet</option>
+              <option value="Blackboard Collaborate">Blackboard Collaborate</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label" for="classType">Class Type <span>*</span></label>
+            <select class="form-select" id="classType" required>
+              <option value="">Select type</option>
+              <option value="extra-class">Extra Class</option>
+              <option value="workshop">Workshop</option>
+              <option value="revision">Revision Session</option>
+              <option value="exam-prep">Exam Preparation</option>
+              <option value="peer-discussion">Peer Discussion</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="programmePhase">Programme Phase <span>*</span></label>
+            <select class="form-select" id="programmePhase" required>
+              <option value="">Select phase</option>
+              <option value="phase-1">Phase 1: Establishment</option>
+              <option value="phase-2">Phase 2: Semester 1 Classes</option>
+              <option value="phase-3">Phase 3: Exam Preparation</option>
+              <option value="phase-4">Phase 4: Semester 2 Support</option>
+              <option value="phase-5">Phase 5: Final Exam Prep</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="meetingLink">Meeting Link</label>
+          <input type="url" class="form-input" id="meetingLink" placeholder="https://teams.microsoft.com/...">
+          <div class="form-hint">Optional. Add the online meeting link for students.</div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="description">Description</label>
+          <textarea class="form-textarea" id="description" placeholder="Brief description of what will be covered in this class..."></textarea>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label" for="capacity">Capacity</label>
+            <input type="number" class="form-input" id="capacity" placeholder="e.g., 50" min="1" inputmode="numeric">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="materialsLink">Materials Link</label>
+            <input type="url" class="form-input" id="materialsLink" placeholder="Link to class materials">
+          </div>
+        </div>
+      </form>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeScheduleModal()">Cancel</button>
+      <button class="btn btn-primary" id="saveBtn" onclick="scheduleClass()">Schedule class</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="confirmModal" style="z-index:250">
+  <div class="modal modal-sm" role="alertdialog" aria-modal="true" aria-labelledby="cfTitle" aria-describedby="cfMsg">
+    <div class="modal-body"><h2 class="modal-title" id="cfTitle"></h2><p id="cfMsg" class="muted" style="margin-top:8px"></p></div>
+    <div class="modal-footer"><button class="btn btn-secondary" id="cfCancel">Keep</button><button class="btn btn-primary" id="cfOk">Confirm</button></div>
+  </div>
+</div>
+<script>
+/* ===== CISAS Executive Portal ===== */
+const KEY = 'cisas.portal.v1', THEME_KEY = 'cisas.theme';
+const PHASES = [
+  {id:'phase-1', name:'Phase 1: Establishment', short:'Establishment and Alignment', dates:'February to March 2026'},
+  {id:'phase-2', name:'Phase 2: Semester 1 Classes', short:'Semester 1 Classes', dates:'March to May 2026'},
+  {id:'phase-3', name:'Phase 3: Exam Preparation', short:'Exam Preparation', dates:'May to June 2026'},
+  {id:'phase-4', name:'Phase 4: Semester 2 Support', short:'Semester 2 Support', dates:''},
+  {id:'phase-5', name:'Phase 5: Final Exam Prep', short:'Final Exam Prep', dates:''}
+];
+const TYPES = {'extra-class':'Extra Class', workshop:'Workshop', revision:'Revision Session', 'exam-prep':'Exam Preparation', 'peer-discussion':'Peer Discussion'};
+const TITLES = {
+  dashboard:['Dashboard','Welcome to the CISAS Executive Portal. Schedule and manage extra classes for the Information Studies programme.'],
+  manage:['Manage classes','Search, edit, cancel or remove any scheduled session.'],
+  students:['Students','Keep a register of students taking part in the programme.'],
+  reports:['Reports','A summary of the programme so far. Export it or print it for meetings.'],
+  phases:['Programme phases','Follow the programme timeline and choose which phase is current.'],
+  announcements:['Announcements','Post notices for the executive team and keep a record of them.'],
+  settings:['Settings','Appearance, targets and your saved data.']
+};
+const IC = {
+  dashboard:'<rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>',
+  schedule:'<path d="M12 5v14M5 12h14"/>',
+  manage:'<path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/>',
+  students:'<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c0-3.6 2.9-6 6.5-6s6.5 2.4 6.5 6M17 4.5a3.5 3.5 0 0 1 0 7M21.5 20c0-2.8-1.6-4.8-4-5.6"/>',
+  reports:'<path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/>',
+  phases:'<path d="M12 3 2 8l10 5 10-5-10-5zM2 12.5l10 5 10-5M2 17l10 5 10-5"/>',
+  announcements:'<path d="M3 11v3a1 1 0 0 0 1 1h3l8 4V6L7 10H4a1 1 0 0 0-1 1zM19 8a5 5 0 0 1 0 8"/>',
+  settings:'<circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1 7 17M17 7l2.1-2.1"/>'
+};
+const NAV = [['dashboard','Dashboard'],['schedule','Schedule Class'],['manage','Manage Classes'],['students','Students'],['reports','Reports'],['phases','Programme Phases'],['announcements','Announcements'],['settings','Settings']];
+const svg = (k, s = 18) => `<svg viewBox="0 0 24 24" width="${s}" height="${s}" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${IC[k]}</svg>`;
+
+/* ---------- Storage ---------- */
+const DEFAULT = () => ({classes:[], students:[], notes:[], settings:{phase:'phase-1', target:100}});
+let db = load();
+function load(){
+  try{
+    const r = JSON.parse(localStorage.getItem(KEY));
+    if (!r) return DEFAULT();
+    const d = DEFAULT();
+    return {classes:r.classes||[], students:r.students||[], notes:r.notes||[], settings:{...d.settings, ...(r.settings||{})}};
+  }catch{ return DEFAULT(); }
+}
+function save(){ try{ localStorage.setItem(KEY, JSON.stringify(db)); }catch{} }
+
+/* ---------- Helpers ---------- */
+const $ = id => document.getElementById(id);
+const esc = t => String(t ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+const start = c => new Date(c.date + 'T' + c.time);
+const end = c => new Date(+start(c) + parseFloat(c.duration) * 36e5);
+const byStart = (a, b) => start(a) - start(b);
+const status = c => c.status === 'cancelled' ? 'cancelled' : (end(c) < new Date() ? 'completed' : 'scheduled');
+const pad = n => String(n).padStart(2, '0');
+const hhmm = d => pad(d.getHours()) + ':' + pad(d.getMinutes());
+const fmtDate = s => new Date(s + 'T00:00').toLocaleDateString('en-ZA', {weekday:'short', day:'numeric', month:'short', year:'numeric'});
+const fmtStamp = iso => new Date(iso).toLocaleDateString('en-ZA', {day:'numeric', month:'short', year:'numeric'});
+const phaseOf = id => PHASES.find(p => p.id === id) || PHASES[0];
+const phaseNo = id => id.slice(-1);
+const validUrl = u => { try{ return /^https?:$/.test(new URL(u).protocol); }catch{ return false; } };
+const todayStr = () => { const d = new Date(); return new Date(d - d.getTimezoneOffset() * 6e4).toISOString().split('T')[0]; };
+
+function toast(msg){
+  const n = document.createElement('div');
+  n.className = 'toast'; n.setAttribute('role', 'status'); n.textContent = msg;
+  document.body.appendChild(n);
+  setTimeout(() => { n.style.opacity = '0'; setTimeout(() => n.remove(), 300); }, 3000);
+}
+const csvCell = v => { v = String(v ?? ''); if (/^[=+\-@]/.test(v)) v = "'" + v; return /[",\n]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v; };
+function download(name, rows){
+  const blob = new Blob(['\uFEFF' + rows.map(r => r.map(csvCell).join(',')).join('\r\n')], {type:'text/csv;charset=utf-8'});
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name;
+  document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+}
+
+/* ---------- Theme ---------- */
+function applyTheme(t, persist){
+  document.documentElement.dataset.theme = t;
+  $('themeLabel').textContent = t === 'dark' ? 'Light mode' : 'Dark mode';
+  $('themeBtn').setAttribute('aria-label', t === 'dark' ? 'Switch to light mode' : 'Switch to dark mode');
+  if (persist) try{ localStorage.setItem(THEME_KEY, t); }catch{}
+}
+let saved = null; try{ saved = localStorage.getItem(THEME_KEY); }catch{}
+applyTheme(saved || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'));
+$('themeBtn').onclick = () => { applyTheme(document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark', true); if (view === 'settings') render(); };
+
+/* ---------- Overlays, menu, confirm ---------- */
+const sidebar = $('sidebar'), scrim = $('scrim'), menuBtn = $('menuBtn'), scheduleModal = $('scheduleModal');
+function syncLock(){ document.body.classList.toggle('locked', sidebar.classList.contains('open') || !!document.querySelector('.modal-overlay.active')); }
+function setMenu(open){
+  sidebar.classList.toggle('open', open); scrim.classList.toggle('show', open);
+  menuBtn.setAttribute('aria-expanded', open); menuBtn.setAttribute('aria-label', open ? 'Close menu' : 'Open menu');
+  syncLock();
+}
+menuBtn.onclick = () => setMenu(!sidebar.classList.contains('open'));
+scrim.onclick = () => setMenu(false);
+matchMedia('(min-width: 901px)').addEventListener('change', e => { if (e.matches) setMenu(false); });
+
+let cfDone = null;
+function ask(title, msg, ok = 'Confirm', danger = false){
+  return new Promise(res => {
+    $('cfTitle').textContent = title; $('cfMsg').textContent = msg;
+    const b = $('cfOk'); b.textContent = ok; b.className = 'btn ' + (danger ? 'btn-danger' : 'btn-primary');
+    $('confirmModal').classList.add('active'); syncLock(); b.focus();
+    cfDone = v => { $('confirmModal').classList.remove('active'); cfDone = null; syncLock(); res(v); };
+    b.onclick = () => cfDone(true); $('cfCancel').onclick = () => cfDone(false);
+  });
+}
+$('confirmModal').addEventListener('click', e => { if (e.target === e.currentTarget && cfDone) cfDone(false); });
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape'){
+    if (cfDone) cfDone(false); else if (scheduleModal.classList.contains('active')) closeScheduleModal(); else setMenu(false);
+  }
+  if (e.key === 'Tab'){ /* keep focus inside the open dialog */
+    const m = document.querySelector('.modal-overlay.active .modal'); if (!m) return;
+    const f = [...m.querySelectorAll('button,input,select,textarea,a[href]')].filter(x => !x.disabled && x.offsetParent !== null);
+    if (!f.length) return;
+    if (e.shiftKey && document.activeElement === f[0]){ e.preventDefault(); f[f.length - 1].focus(); }
+    else if (!e.shiftKey && document.activeElement === f[f.length - 1]){ e.preventDefault(); f[0].focus(); }
+  }
+});
+
+/* ---------- Class modal (create + edit) ---------- */
+const FIELDS = ['classTitle','moduleCode','facilitator','classDate','classTime','duration','platform','classType','programmePhase','meetingLink','description','capacity','materialsLink'];
+let editingId = null;
+function openScheduleModal(id){
+  editingId = typeof id === 'string' ? id : null;
+  const c = editingId ? db.classes.find(x => x.id === editingId) : null;
+  $('scheduleForm').reset(); clearErrors();
+  $('modalTitle').textContent = c ? 'Edit class' : 'Schedule new class';
+  $('saveBtn').textContent = c ? 'Save changes' : 'Schedule class';
+  $('classDate').min = c ? '' : todayStr();
+  if (c){
+    const m = {classTitle:'title', moduleCode:'moduleCode', facilitator:'facilitator', classDate:'date', classTime:'time', duration:'duration', platform:'platform', classType:'type', programmePhase:'phase', meetingLink:'meetingLink', description:'description', materialsLink:'materialsLink'};
+    Object.entries(m).forEach(([k, v]) => $(k).value = c[v] || '');
+    $('capacity').value = c.capacity === 'Unlimited' ? '' : c.capacity;
+  } else $('programmePhase').value = db.settings.phase;
+  scheduleModal.classList.add('active'); syncLock(); setMenu(false);
+  setTimeout(() => $('classTitle').focus(), 50);
+}
+function closeScheduleModal(){ scheduleModal.classList.remove('active'); syncLock(); }
+function clearErrors(){ $('formError').hidden = true; FIELDS.forEach(f => $(f).classList.remove('invalid')); }
+FIELDS.forEach(f => $(f).addEventListener('input', () => $(f).classList.remove('invalid')));
+scheduleModal.addEventListener('click', e => { if (e.target === scheduleModal) closeScheduleModal(); });
+
+function scheduleClass(){
+  const v = id => $(id).value.trim();
+  const d = {title:v('classTitle'), moduleCode:v('moduleCode'), facilitator:v('facilitator'), date:v('classDate'), time:v('classTime'),
+    duration:v('duration'), platform:v('platform'), type:v('classType'), phase:v('programmePhase'), meetingLink:v('meetingLink'),
+    description:v('description'), capacity:v('capacity'), materialsLink:v('materialsLink')};
+  const bad = new Set(), msgs = [];
+  const need = [['title','classTitle','Class title'],['moduleCode','moduleCode','Module code'],['facilitator','facilitator','Facilitator'],['date','classDate','Date'],['time','classTime','Time'],['platform','platform','Platform'],['type','classType','Class type'],['phase','programmePhase','Programme phase']];
+  const missing = need.filter(([k]) => !d[k]);
+  missing.forEach(([, id]) => bad.add(id));
+  if (missing.length) msgs.push('Fill in: ' + missing.map(m => m[2]).join(', ') + '.');
+  if (d.meetingLink && !validUrl(d.meetingLink)){ bad.add('meetingLink'); msgs.push('Meeting link must start with http:// or https://.'); }
+  if (d.materialsLink && !validUrl(d.materialsLink)){ bad.add('materialsLink'); msgs.push('Materials link must start with http:// or https://.'); }
+  if (d.capacity && !(parseInt(d.capacity, 10) > 0)){ bad.add('capacity'); msgs.push('Capacity must be a whole number above zero.'); }
+  const old = editingId ? db.classes.find(x => x.id === editingId) : null;
+  if (d.date && d.time){
+    const probe = {date:d.date, time:d.time, duration:d.duration};
+    const changed = !old || old.date !== d.date || old.time !== d.time;
+    if (changed && start(probe) < new Date()){ bad.add('classDate'); bad.add('classTime'); msgs.push('Choose a date and time in the future.'); }
+    const clash = d.facilitator && db.classes.find(c => c.id !== editingId && status(c) !== 'cancelled' && c.facilitator.toLowerCase() === d.facilitator.toLowerCase() && start(c) < end(probe) && start(probe) < end(c));
+    if (clash){ bad.add('classTime'); msgs.push(`${d.facilitator} already has “${clash.title}” at ${hhmm(start(clash))}–${hhmm(end(clash))} on that day.`); }
+  }
+  if (msgs.length){
+    clearErrors(); bad.forEach(id => $(id).classList.add('invalid'));
+    $('formError').innerHTML = msgs.length === 1 ? esc(msgs[0]) : '<ul>' + msgs.map(m => `<li>${esc(m)}</li>`).join('') + '</ul>';
+    $('formError').hidden = false; $('formError').scrollIntoView({block:'nearest'});
+    const first = [...bad][0]; if (first) $(first).focus();
+    return;
+  }
+  d.capacity = d.capacity ? String(parseInt(d.capacity, 10)) : 'Unlimited';
+  if (old){ Object.assign(old, d); toast('Class updated.'); }
+  else { db.classes.push({id:uid(), ...d, status:'scheduled', createdAt:new Date().toISOString()}); toast('Class scheduled successfully.'); }
+  save(); closeScheduleModal(); render();
+}
+
+/* ---------- Rendering helpers ---------- */
+const stat = (l, v, m, small) => `<div class="stat-card"><div class="stat-label">${l}</div><div class="stat-value ${small ? 'sm' : ''}">${v}</div><div class="stat-meta">${esc(m)}</div></div>`;
+const panel = (title, body, right = '') => `<section class="panel"><div class="panel-header"><h2 class="panel-title">${title}</h2>${right}</div><div class="panel-body">${body}</div></section>`;
+
+function classCard(c, actions){
+  const s = status(c), links = [];
+  if (c.meetingLink) links.push(`<a class="link" href="${esc(c.meetingLink)}" target="_blank" rel="noopener noreferrer">Join meeting</a>`);
+  if (c.materialsLink) links.push(`<a class="link" href="${esc(c.materialsLink)}" target="_blank" rel="noopener noreferrer">Materials</a>`);
+  return `<article class="class-item ${s === 'cancelled' ? 'is-cancelled' : ''}">
+    <div class="class-info">
+      <div class="class-top"><span class="class-status status-${s}">${s}</span><span class="class-type">${TYPES[c.type] || esc(c.type)} · Phase ${phaseNo(c.phase)}</span></div>
+      <h3 class="class-title">${esc(c.title)}</h3>
+      <div class="class-meta">
+        <span><strong>Date:</strong> ${fmtDate(c.date)}</span>
+        <span><strong>Time:</strong> ${hhmm(start(c))}–${hhmm(end(c))}</span>
+        <span><strong>Module:</strong> ${esc(c.moduleCode)}</span>
+        <span><strong>Facilitator:</strong> ${esc(c.facilitator)}</span>
+      </div>
+      <div class="class-meta">
+        <span><strong>Platform:</strong> ${esc(c.platform)}</span>
+        ${c.capacity !== 'Unlimited' ? `<span><strong>Capacity:</strong> ${esc(c.capacity)}</span>` : ''}
+        ${links.join('')}
+      </div>
+      ${c.description ? `<p class="class-desc">${esc(c.description)}</p>` : ''}
+    </div>
+    ${actions ? `<div class="class-actions">
+      <button class="btn btn-secondary btn-sm" data-act="edit" data-id="${c.id}">Edit</button>
+      ${c.status === 'cancelled'
+        ? `<button class="btn btn-secondary btn-sm" data-act="reinstate" data-id="${c.id}">Reinstate</button>`
+        : (s === 'scheduled' ? `<button class="btn btn-secondary btn-sm" data-act="cancel" data-id="${c.id}">Cancel</button>` : '')}
+      <button class="btn btn-danger btn-sm" data-act="delete" data-id="${c.id}">Delete</button></div>` : ''}
+  </article>`;
+}
+const empty = (h, p, btn = '') => `<div class="empty-state"><h3>${h}</h3><p>${p}</p>${btn}</div>`;
+
+/* ---------- Views ---------- */
+const ui = {q:'', phase:'', status:'', type:'', sq:''};
+const VIEWS = {
+  dashboard(){
+    const wk = new Date(Date.now() + 7 * 864e5);
+    const up = db.classes.filter(c => status(c) === 'scheduled').sort(byStart);
+    const ph = phaseOf(db.settings.phase), cur = PHASES.indexOf(ph);
+    const upcoming = up.length
+      ? `<div class="classes-list">${up.slice(0, 5).map(c => classCard(c, false)).join('')}</div>`
+      : empty('No classes scheduled', 'Use “Schedule new class” to add your first extra class for the Information Studies programme.', '<button class="btn btn-primary" data-act="new">Schedule new class</button>');
+    const qa = [['new','schedule','Schedule class'],['go:announcements','announcements','Post announcement'],['go:students','students','View students'],['go:reports','reports','Generate report']]
+      .map(([a, i, l]) => `<button class="quick-action-btn" data-act="${a}"><span class="quick-action-icon">${svg(i, 22)}</span><span class="quick-action-label">${l}</span></button>`).join('');
+    const tl = PHASES.map((p, i) => `<div class="phase ${i === cur ? 'current' : ''}"><div class="phase-tag">${i < cur ? 'Completed' : i === cur ? 'Current phase' : 'Upcoming'}</div><div class="phase-name">${p.name}</div><div class="phase-date">${p.dates || 'Dates to be confirmed'}</div></div>`).join('');
+    return `<div class="stats-grid">
+      ${stat('Total classes scheduled', db.classes.length, 'For the 2026 academic year')}
+      ${stat('Upcoming classes', up.filter(c => start(c) <= wk).length, 'Next 7 days')}
+      ${stat('Registered students', db.students.length, 'Target: ' + db.settings.target + ' students')}
+      ${stat('Current phase', 'Phase ' + phaseNo(ph.id), ph.short, true)}</div>
+      <div class="content-grid">
+        ${panel('Upcoming classes', upcoming, up.length > 5 ? '<button class="btn btn-secondary btn-sm" data-act="go:manage">View all</button>' : '')}
+        <div class="side-stack">${panel('Quick actions', `<div class="quick-actions">${qa}</div>`)}${panel('Programme timeline', `<div class="timeline">${tl}</div>`)}</div>
+      </div>`;
+  },
+  manage(){
+    const sel = (k, label, opts) => `<select class="form-select" data-f="${k}" aria-label="${label}"><option value="">${label}</option>${opts.map(([v, t]) => `<option value="${v}" ${ui[k] === v ? 'selected' : ''}>${t}</option>`).join('')}</select>`;
+    return `<section class="panel"><div class="panel-body">
+      <div class="toolbar">
+        <input class="form-input" type="search" data-f="q" value="${esc(ui.q)}" placeholder="Search classes" aria-label="Search classes">
+        ${sel('phase', 'All phases', PHASES.map(p => [p.id, 'Phase ' + phaseNo(p.id)]))}
+        ${sel('status', 'All statuses', [['scheduled','Scheduled'],['completed','Completed'],['cancelled','Cancelled']])}
+        ${sel('type', 'All types', Object.entries(TYPES))}
+        <button class="btn btn-secondary" data-act="export-classes">Export CSV</button>
+      </div>
+      <p class="result-count" id="clsCount" aria-live="polite"></p>
+      <div class="classes-list" id="clsList"></div></div></section>`;
+  },
+  students(){
+    return `<div class="stack">${panel('Add a student', `
+      <form data-form="student" class="inline-form" novalidate>
+        <div><label class="form-label" for="sName">Full name <span>*</span></label><input class="form-input" id="sName" autocomplete="off"></div>
+        <div><label class="form-label" for="sNo">Student number <span>*</span></label><input class="form-input" id="sNo" inputmode="numeric" autocomplete="off"></div>
+        <div><label class="form-label" for="sMail">Email</label><input class="form-input" id="sMail" type="email" autocomplete="off"></div>
+        <button class="btn btn-primary" type="submit">Add student</button>
+      </form><div class="form-error" id="sErr" role="alert" hidden></div>`)}
+      ${panel('Register', `
+        <div class="progress-row"><span><strong id="sCount"></strong> of ${db.settings.target} students registered</span><span id="sPct"></span></div>
+        <div class="progress"><i id="sBar"></i></div>
+        <div class="toolbar" style="margin-top:20px"><input class="form-input" type="search" data-f="sq" value="${esc(ui.sq)}" placeholder="Search by name, number or email" aria-label="Search students"><button class="btn btn-secondary" data-act="export-students">Export CSV</button></div>
+        <div id="sTable"></div>`)}</div>`;
+  },
+  reports(){
+    const cs = db.classes, by = s => cs.filter(c => status(c) === s).length;
+    const hours = cs.filter(c => status(c) !== 'cancelled').reduce((a, c) => a + parseFloat(c.duration), 0);
+    const bars = (items, total) => items.map(([l, n]) => `<div class="bar-row"><span>${l}</span><div class="progress"><i style="width:${total ? n / total * 100 : 0}%"></i></div><b>${n}</b></div>`).join('');
+    const total = cs.length;
+    return `<div class="stats-grid">${stat('Total classes', total, 'All time')}${stat('Scheduled', by('scheduled'), 'Still to take place')}${stat('Completed', by('completed'), 'Already held')}${stat('Teaching hours', hours % 1 ? hours.toFixed(1) : hours, 'Excluding cancelled')}</div>
+      <div class="content-grid">
+        ${panel('Classes by phase', total ? bars(PHASES.map(p => [p.name, cs.filter(c => c.phase === p.id).length]), total) : empty('Nothing to report yet', 'Schedule a class and the numbers will appear here.'))}
+        <div class="side-stack">${panel('Classes by type', total ? bars(Object.entries(TYPES).map(([k, l]) => [l, cs.filter(c => c.type === k).length]), total) : '<p class="muted">No data yet.</p>')}
+        ${panel('Export', '<div class="btn-stack"><button class="btn btn-primary" data-act="export-classes">Download classes (CSV)</button><button class="btn btn-secondary" data-act="print">Print report</button></div>')}</div>
+      </div>`;
+  },
+  phases(){
+    const cur = db.settings.phase;
+    return `<div class="stack">${PHASES.map((p, i) => {
+      const n = db.classes.filter(c => c.phase === p.id && c.status !== 'cancelled').length, isCur = p.id === cur;
+      return `<section class="panel phase-card ${isCur ? 'is-current' : ''}"><div class="panel-body phase-row">
+        <div><div class="phase-tag">${isCur ? 'Current phase' : 'Phase ' + (i + 1)}</div><h2 class="panel-title">${p.name}</h2>
+        <p class="muted">${p.dates || 'Dates to be confirmed'} · ${n} class${n === 1 ? '' : 'es'}</p></div>
+        ${isCur ? '<span class="class-status status-scheduled">Current</span>' : `<button class="btn btn-secondary btn-sm" data-act="phase" data-id="${p.id}">Set as current</button>`}
+      </div></section>`;
+    }).join('')}</div>`;
+  },
+  announcements(){
+    const list = [...db.notes].sort((a, b) => b.at.localeCompare(a.at));
+    return `<div class="content-grid">
+      ${panel('Announcements', list.length ? list.map(n => `<article class="note"><div class="note-head"><h3>${esc(n.title)}</h3><button class="btn btn-secondary btn-sm" data-act="del-note" data-id="${n.id}">Remove</button></div><p>${esc(n.body).replace(/\n/g, '<br>')}</p><div class="stat-meta">${fmtStamp(n.at)}</div></article>`).join('') : empty('No announcements yet', 'Posted announcements will be listed here, newest first.'))}
+      ${panel('New announcement', `<form data-form="note" novalidate>
+        <div class="form-group"><label class="form-label" for="nTitle">Title <span>*</span></label><input class="form-input" id="nTitle" autocomplete="off"></div>
+        <div class="form-group"><label class="form-label" for="nBody">Message <span>*</span></label><textarea class="form-textarea" id="nBody"></textarea></div>
+        <div class="form-error" id="nErr" role="alert" hidden></div>
+        <button class="btn btn-primary" type="submit">Post announcement</button></form>`)}</div>`;
+  },
+  settings(){
+    const dark = document.documentElement.dataset.theme === 'dark';
+    return `<div class="stack">
+      ${panel('Appearance', `<div class="seg" role="group" aria-label="Theme"><button data-act="theme" data-id="light" class="${dark ? '' : 'on'}">Light</button><button data-act="theme" data-id="dark" class="${dark ? 'on' : ''}">Dark</button></div>`)}
+      ${panel('Student target', `<div class="form-group" style="max-width:260px"><label class="form-label" for="target">Students to register</label><input class="form-input" id="target" type="number" min="1" inputmode="numeric" value="${db.settings.target}" data-setting="target"></div><p class="form-hint">Used for the progress bar and dashboard.</p>`)}
+      ${panel('Your data', `<p class="muted" style="margin-bottom:14px">Everything is saved in this browser only. Clear it to start over.</p><button class="btn btn-danger" data-act="wipe">Clear all data</button>`)}</div>`;
+  }
+};
+
+/* ---------- Partial refreshes (keep typing focus) ---------- */
+function filtered(){
+  const q = ui.q.toLowerCase();
+  return db.classes.filter(c => (!q || [c.title, c.moduleCode, c.facilitator].some(x => x.toLowerCase().includes(q)))
+    && (!ui.phase || c.phase === ui.phase) && (!ui.status || status(c) === ui.status) && (!ui.type || c.type === ui.type)).sort(byStart);
+}
+function refreshManage(){
+  const l = filtered();
+  $('clsCount').textContent = `${l.length} of ${db.classes.length} class${db.classes.length === 1 ? '' : 'es'}`;
+  $('clsList').innerHTML = l.length ? l.map(c => classCard(c, true)).join('')
+    : (db.classes.length ? empty('No matching classes', 'Try a different search or clear the filters.') : empty('No classes scheduled', 'Use “Schedule new class” to add your first extra class.', '<button class="btn btn-primary" data-act="new">Schedule new class</button>'));
+}
+function refreshStudents(){
+  const q = ui.sq.toLowerCase(), n = db.students.length, t = db.settings.target;
+  const l = db.students.filter(s => !q || [s.name, s.no, s.email].some(x => (x || '').toLowerCase().includes(q)));
+  $('sCount').textContent = n; $('sPct').textContent = Math.round(Math.min(100, n / t * 100)) + '%'; $('sBar').style.width = Math.min(100, n / t * 100) + '%';
+  $('sTable').innerHTML = l.length ? `<div class="table-wrap"><table><thead><tr><th>Name</th><th>Student no.</th><th>Email</th><th>Added</th><th><span class="sr-only">Actions</span></th></tr></thead><tbody>
+    ${l.map(s => `<tr><td><strong>${esc(s.name)}</strong></td><td>${esc(s.no)}</td><td>${esc(s.email || '—')}</td><td>${fmtStamp(s.at)}</td><td class="right"><button class="btn btn-secondary btn-sm" data-act="del-student" data-id="${s.id}">Remove</button></td></tr>`).join('')}</tbody></table></div>`
+    : empty(n ? 'No matching students' : 'No students yet', n ? 'Try a different search.' : 'Add your first student using the form above.');
+}
+
+/* ---------- Router ---------- */
+let view = 'dashboard';
+function route(){
+  const h = location.hash.slice(1);
+  view = VIEWS[h] ? h : 'dashboard';
+  render(); window.scrollTo(0, 0);
+}
+function render(){
+  document.title = TITLES[view][0] + ' | CISAS Executive Portal';
+  const btn = ['dashboard', 'manage'].includes(view) ? '<button class="btn btn-primary" data-act="new">Schedule new class</button>' : '';
+  $('main').innerHTML = `<div class="page-header"><div><h1 class="page-title">${TITLES[view][0]}</h1><p class="page-subtitle">${TITLES[view][1]}</p></div>${btn}</div>` + VIEWS[view]();
+  document.querySelectorAll('#nav a').forEach(a => { const on = a.dataset.view === view; a.classList.toggle('active', on); on ? a.setAttribute('aria-current', 'page') : a.removeAttribute('aria-current'); });
+  if (view === 'manage') refreshManage();
+  if (view === 'students') refreshStudents();
+}
+$('nav').innerHTML = NAV.map(([k, l]) => `<a href="#${k}" data-view="${k}"><span class="nav-icon">${svg(k)}</span>${l}</a>`).join('');
+$('nav').addEventListener('click', e => {
+  const a = e.target.closest('a'); if (!a) return;
+  setMenu(false);
+  if (a.dataset.view === 'schedule'){ e.preventDefault(); openScheduleModal(); }
+});
+window.addEventListener('hashchange', route);
+
+/* ---------- Actions ---------- */
+const go = v => { if (location.hash === '#' + v) render(); else location.hash = v; };
+$('main').addEventListener('click', async e => {
+  const b = e.target.closest('[data-act]'); if (!b) return;
+  const act = b.dataset.act, id = b.dataset.id, c = db.classes.find(x => x.id === id);
+  if (act === 'new') return openScheduleModal();
+  if (act.startsWith('go:')) return go(act.slice(3));
+  if (act === 'edit') return openScheduleModal(id);
+  if (act === 'cancel' && await ask('Cancel this class?', `“${c.title}” will be marked as cancelled. You can reinstate it later.`, 'Cancel class', true)){ c.status = 'cancelled'; save(); render(); toast('Class cancelled.'); }
+  if (act === 'reinstate'){ c.status = 'scheduled'; save(); render(); toast('Class reinstated.'); }
+  if (act === 'delete' && await ask('Delete this class?', `“${c.title}” will be removed permanently.`, 'Delete', true)){ db.classes = db.classes.filter(x => x.id !== id); save(); render(); toast('Class deleted.'); }
+  if (act === 'del-student' && await ask('Remove student?', 'This student will be removed from the register.', 'Remove', true)){ db.students = db.students.filter(x => x.id !== id); save(); refreshStudents(); toast('Student removed.'); }
+  if (act === 'del-note' && await ask('Remove announcement?', 'This announcement will be deleted.', 'Remove', true)){ db.notes = db.notes.filter(x => x.id !== id); save(); render(); }
+  if (act === 'phase'){ db.settings.phase = id; save(); render(); toast(phaseOf(id).name + ' is now the current phase.'); }
+  if (act === 'theme'){ applyTheme(id, true); render(); }
+  if (act === 'print') window.print();
+  if (act === 'export-classes'){
+    if (!db.classes.length) return toast('There are no classes to export yet.');
+    download('cisas-classes.csv', [['Title','Module','Facilitator','Date','Start','End','Duration (h)','Platform','Type','Phase','Status','Capacity','Meeting link','Materials link','Description'],
+      ...[...db.classes].sort(byStart).map(c => [c.title, c.moduleCode, c.facilitator, c.date, hhmm(start(c)), hhmm(end(c)), c.duration, c.platform, TYPES[c.type], phaseOf(c.phase).name, status(c), c.capacity, c.meetingLink, c.materialsLink, c.description])]);
+  }
+  if (act === 'export-students'){
+    if (!db.students.length) return toast('There are no students to export yet.');
+    download('cisas-students.csv', [['Name','Student number','Email','Added'], ...db.students.map(s => [s.name, s.no, s.email, s.at.slice(0, 10)])]);
+  }
+  if (act === 'wipe' && await ask('Clear all data?', 'All classes, students and announcements will be deleted. This cannot be undone.', 'Clear everything', true)){ db = DEFAULT(); save(); render(); toast('All data cleared.'); }
+});
+$('main').addEventListener('input', e => {
+  const f = e.target.dataset.f; if (!f) return;
+  ui[f] = e.target.value;
+  if (view === 'manage') refreshManage(); else if (view === 'students') refreshStudents();
+});
+$('main').addEventListener('change', e => {
+  const s = e.target.dataset.setting;
+  if (s === 'target'){ const n = parseInt(e.target.value, 10); if (n > 0){ db.settings.target = n; save(); toast('Target updated.'); } else e.target.value = db.settings.target; }
+});
+$('main').addEventListener('submit', e => {
+  e.preventDefault();
+  const kind = e.target.dataset.form, val = id => $(id).value.trim();
+  const fail = (box, msg, field) => { $(box).textContent = msg; $(box).hidden = false; $(field).classList.add('invalid'); $(field).focus(); };
+  if (kind === 'student'){
+    ['sName','sNo','sMail'].forEach(i => $(i).classList.remove('invalid')); $('sErr').hidden = true;
+    const s = {name:val('sName'), no:val('sNo'), email:val('sMail')};
+    if (!s.name) return fail('sErr', 'Enter the student’s full name.', 'sName');
+    if (!s.no) return fail('sErr', 'Enter the student number.', 'sNo');
+    if (s.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(s.email)) return fail('sErr', 'Enter a valid email address or leave it blank.', 'sMail');
+    if (db.students.some(x => x.no === s.no)) return fail('sErr', 'A student with that number is already registered.', 'sNo');
+    db.students.push({id:uid(), ...s, at:new Date().toISOString()}); save();
+    e.target.reset(); refreshStudents(); $('sName').focus(); toast('Student added.');
+  }
+  if (kind === 'note'){
+    ['nTitle','nBody'].forEach(i => $(i).classList.remove('invalid')); $('nErr').hidden = true;
+    const n = {title:val('nTitle'), body:val('nBody')};
+    if (!n.title) return fail('nErr', 'Give the announcement a title.', 'nTitle');
+    if (!n.body) return fail('nErr', 'Write the announcement message.', 'nBody');
+    db.notes.push({id:uid(), ...n, at:new Date().toISOString()}); save(); render(); toast('Announcement posted.');
+  }
+});
+
+route();
+</script>
+</body>
+</html>
